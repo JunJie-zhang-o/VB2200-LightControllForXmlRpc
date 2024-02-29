@@ -26,6 +26,7 @@ namespace LightControlForXMLRpc
 
         public static bool OpenSerial(string serialName)
         {
+            System.Console.WriteLine($"OpenSerial:{serialName}");
             LightControl.m_stSerial.strComName = serialName;
             IntPtr ptr = new IntPtr();
             // 1-创建句柄
@@ -39,6 +40,7 @@ namespace LightControlForXMLRpc
                 else
                 {
                     LightControl.handle = ptr;
+                    System.Console.WriteLine(LightControl.m_stSerial.strComName + " Creating the handle success");
                 }
             }
             else
@@ -68,6 +70,7 @@ namespace LightControlForXMLRpc
         // public static bool SetLightParam(string serialName, int portNumber, UInt16 lightValue, bool lightState, UInt16 durationTime)
         public static bool SetLightParam(List<object> args)
         {
+            System.Console.WriteLine($"SetLightParam");
             try
             {
                 string serialName = (string)args[0];
@@ -76,12 +79,9 @@ namespace LightControlForXMLRpc
                 bool lightState = (bool)args[3];
                 int durationTime = (int)args[4];
 
-
-
                 bool ret = LightControl.OpenSerial(serialName);
                 if (ret)
                 {
-
                     int nRet = CIOControllerSDK.MV_OK;
                     CIOControllerSDK.MV_IO_LIGHT_PARAM stParam = new CIOControllerSDK.MV_IO_LIGHT_PARAM();
                     //协议目前不支持，先不送端口
@@ -95,13 +95,13 @@ namespace LightControlForXMLRpc
                     Console.WriteLine("nPortNumber:" + stParam.nPortNumber);
                     Console.WriteLine("nLightValue:" + stParam.nLightValue);
                     Console.WriteLine("nLightState:" + stParam.nLightState);
-                    Console.WriteLine("nLightEdge:" + stParam.nLightEdge);
+                    // Console.WriteLine("nLightEdge:" + stParam.nLightEdge);
                     Console.WriteLine("nDurationTime:" + stParam.nDurationTime);
-                    Console.WriteLine("nReserved:" + stParam.nReserved);
-                    Console.WriteLine("MV_IO_SetLightParam_CS:" + Convert.ToString(stParam));
-                    Console.WriteLine("handle:" + Convert.ToString(LightControl.handle));
+                    // Console.WriteLine("nReserved:" + stParam.nReserved);
+                    // Console.WriteLine("MV_IO_SetLightParam_CS:" + Convert.ToString(stParam));
+                    // Console.WriteLine("handle:" + Convert.ToString(LightControl.handle));
                     nRet = CIOControllerSDK.MV_IO_SetLightParam_CS(LightControl.handle, ref stParam);
-                    Console.WriteLine("nRet:" + nRet);
+                    // Console.WriteLine("nRet:" + nRet);
                     if (CIOControllerSDK.MV_OK != nRet)
                     {
                         Console.WriteLine("Sending the command of light source settings failed. Error code:" + Convert.ToString(nRet, 16));
@@ -134,6 +134,7 @@ namespace LightControlForXMLRpc
 
         public static void CloseSerial()
         {
+            System.Console.WriteLine("CloseSerial");
             // ch:关闭串口 | en:Disconnect serial 
             if (IntPtr.Zero != LightControl.handle) // SelectedIndex也是从0开始
             {
@@ -182,13 +183,15 @@ namespace LightControlForXMLRpc
             {
                 foreach (string ip in userfulIP)
                 {
-                    listener.Prefixes.Add($"http://{ip}:9090/");
+                    string url = $"http://{ip}:9090/";
+                    listener.Prefixes.Add(url);
                 }
                 listener.Start();
                 Console.WriteLine("XML-RPC Server is running...");
                 while (true)
                 {
                     HttpListenerContext context = listener.GetContext();
+                    System.Console.WriteLine("-------------Recv XML RPC Request-------------");
                     Task.Run(() => ProcessRequest(context));
                 }
             }
@@ -202,7 +205,7 @@ namespace LightControlForXMLRpc
                 using (StreamReader reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding))
                 {
                     string requestBody = reader.ReadToEnd();
-                    Console.WriteLine("Request Body: " + requestBody);
+                    // Console.WriteLine("Request Body: " + requestBody);
 
                     // 解析 XML-RPC 请求
                     string responseXml = ParseXmlRpcRequest(requestBody);
@@ -234,6 +237,7 @@ namespace LightControlForXMLRpc
             xmlDoc.LoadXml(xml);
 
             string methodName = xmlDoc.SelectSingleNode("/methodCall/methodName").InnerText;
+            System.Console.WriteLine($"|MethodName:{methodName}");
             XmlNodeList? paramNodes = xmlDoc.SelectNodes("/methodCall/params/param/value");
             // 在这里解析 XML-RPC 请求的内容，并根据需要进行处理
             List<object> args = new List<object>();
@@ -242,7 +246,7 @@ namespace LightControlForXMLRpc
             {
                 string valueType = paramNode.ChildNodes[0].Name;
                 string paramValue = paramNode.ChildNodes[0].InnerText;
-                Console.WriteLine("param - Type: " + valueType + ", Value: " + paramValue);
+                Console.WriteLine("|param - Type: " + valueType + ", Value: " + paramValue);
                 object? value = null;
                 switch (valueType)
                 {
@@ -274,7 +278,9 @@ namespace LightControlForXMLRpc
             // 
             if (methodName == "SetLightParam")
             {
+                System.Console.WriteLine("-------------");
                 LightControl.SetLightParam(args);
+                System.Console.WriteLine("-------------");
             }
 
             // 这里只是一个简单的示例，直接返回一个固定的响应

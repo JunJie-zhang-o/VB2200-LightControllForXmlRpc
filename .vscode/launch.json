@@ -9,10 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net5.0/demo.dll",
+            "program": "${workspaceFolder}/bin/Debug/net5.0/LightControlForXMLRpc.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
-            // "console": "internalConsole",
             "console": "internalConsole",
             "stopAtEntry": false
         },
