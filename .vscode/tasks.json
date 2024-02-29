@@ -1,0 +1,55 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/LightControlForXMLRpc.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "publish",
+                "-c",
+                "Release",
+                "-p:PublishProfile=FolderProfile",
+                "-o",
+                "bin/Release-Win"
+            ],
+            "problemMatcher": "$msCompile",
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/LightControlForXMLRpc.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Publish Full Exe Include Dll",
+            "type": "shell",
+            "command":"cp",
+            "args": [
+                "lib/*",
+                "bin/Release-Win/"
+            ],
+            "dependsOn":[
+                "publish"
+            ]
+        }
+    ]
+}
