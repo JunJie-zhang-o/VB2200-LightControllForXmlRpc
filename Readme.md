@@ -92,3 +92,5 @@ while 1:
 实际使用过程中建议将该exe封装为Windows服务，并且重定向输出使用
 
 推荐NSSM软件，详细使用方法，微信搜索 NSSM最详细解说
+
+LightControlForXMLRpc.exe需要安装.net 5.0 runtime
